@@ -1,8 +1,8 @@
 ################ Regras do Jogo ##########
 """
 -->Video para instrucoes: https://www.youtube.com/watch?v=m8NHoIqFg4A
-Ludo
-Instruções e regras do jogo
+
+Instruções e regras do jogo Ludo:
 
 1. começo: Os peões de cada jogador começam na base de mesma cor.
 O objetivo do jogo é ser o primeiro a levar seus 4 peões a dar
@@ -112,8 +112,7 @@ ali no propety do atributo nome --
 
 ################ Metodos #################
 def Menu1():
-    print(f"Bem vindo ao jogo de Ludo!\n"
-          f"Menu Principal:\n"
+    print(f"Menu Principal:\n"
           f"1. Iniciar uma partida\n"
           f"2. Ver as Regras do jogo\n"
           f"3. Encerrar o programa\n"
@@ -123,9 +122,13 @@ def Menu1():
     #um round consiste em uma jogada de cada jgador no jogo sendo ele maquina ou nao.
     #implementar o score board com arquivos
 def Regras():
-    print("")
-    #printa as regras, to com preguisa de arrumar o texto pra ficar bonito na tela.
-
+    try:
+        a = open("ludo_regras.txt")
+    except:
+        print("Problemas ao abrir o arquivo de regras")
+    else:
+        with open("ludo_regras.txt") as arquivo:
+            print(arquivo.read() + "\n\n")
 
 def Cria_Objeto_Jogador(numero_de_jogadores): #depois tem que criar um criador de BOTs maquina!!
     lista_de_jogadores = []
@@ -218,6 +221,7 @@ def Partida_do_jogo(lista_de_jogadores):
             print("-+-"*26)
             print(f"O Jogador {vencedor[1]} ganhou a partida no round {numero_de_rounds} com as pecas de cor {vencedor[2]}")
             print("-+-" * 26)
+            print("\n\n")
 
         #define e organiza a lista por quem vai jogar primeiro
         '''--> falta pensar como fazer essa questao aqui...
@@ -262,8 +266,15 @@ def DADO():
 ################ Main ####################
 if(__name__ == "__main__"):
     infos_do_jogo = Infos_do_Jogo() #instancio o objeto para poder usar os recursos que estao dentro dele.
-    player_eu = Jogador("antonio","Azul")
+    ##-->debug
+    #player_eu = Jogador("antonio","Azul")
+    ##-fim do debug
 
+    #Mensagem Inicial
+    print()
+    print("~"*35)
+    print(f"    Bem vindo ao jogo de Ludo!")
+    print("~" * 35)
     while(True):
         Menu1()
         resposta_1 = input()
@@ -295,12 +306,13 @@ if(__name__ == "__main__"):
         #regras
         elif(int(resposta_1) == 2):
             Regras()
-        #sai do programa
+
+        #sair do programa
         elif(int(resposta_1) == 3):
             Sair = input("Voce deseja realmente sair?(S/N)")
             while Sair.upper() not in "SN":
                 Sair = input("entrada invalida, tente novamente(S/N):")
-            if(Sair == "S"):
+            if(Sair.upper() == "S"):
                 print("Encerrando o programa...")
                 break
             else:

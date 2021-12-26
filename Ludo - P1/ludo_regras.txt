@@ -1,0 +1,18 @@
+Instruções e regras do jogo Ludo:
+
+1. começo: Os peões de cada jogador começam na base de mesma cor.
+O objetivo do jogo é ser o primeiro a levar seus 4 peões a dar
+uma volta no tabuleiro e a chegar no ponto final marcado com sua cor.
+
+2. movimentos: Os peões movem-se pelo percurso no sentido horário.
+Para transportar um peão de sua base para seu ponto de partida
+é necessário tirar 6. Quando o jogador já tem pelo menos um peão
+no percurso, ele pode mover o peão o número de casas tirado no dado.
+Se tirar 6, além de usar esse resultado, ele pode jogar novamente o dado.
+
+3. final: Após dar a volta no tabuleiro o peão avança pela reta final,
+de sua própria cor. A chegada ao ponto final só pode ser obtida por um
+número exato nos dados. Se o jogador tirar mais que o necessário,
+ele vai ate o fim e volta, tendo que aguardar sua próxima jogada.
+O vencedor é o primeiro a levar os seus quatro peões ao ponto de
+chegada da sua cor.
