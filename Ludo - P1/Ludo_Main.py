@@ -35,6 +35,7 @@ class Infos_do_Jogo:
         self.percurso_normal = 56
         self.percurso_colorido = 6
         self.cores_peoes = ["Azul","Amarelo","Vermelho","Verde"]
+        self.numero_de_peoes = 4
 
 
 class Jogador:
@@ -47,6 +48,7 @@ class Jogador:
         self.posicao_no_percurso_normal = 0
         self.percurso_colorico = False
         self.posicao_percurso_colorido = 0
+        self.peoes_que_terminaram_o_trageto = 0
 
     def __str__(self):
         return f"Jogador: {str(self.nome).title()};Cor da peca: {str(self.cor).title()}"
@@ -121,6 +123,7 @@ def Menu1():
     #o score consiste an soma dos roudns que ela jogou para ganhar, menos rounds remete a um score melhor.
     #um round consiste em uma jogada de cada jgador no jogo sendo ele maquina ou nao.
     #implementar o score board com arquivos
+
 def Regras():
     try:
         a = open("ludo_regras.txt")
@@ -129,6 +132,29 @@ def Regras():
     else:
         with open("ludo_regras.txt") as arquivo:
             print(arquivo.read() + "\n\n")
+
+def le_quadro_de_campeoes():
+    #esse metodo so le e devolve uma lista com os negocios de cada um dos 10 campeoes
+    try:
+        a = open("quadro_de_campeoes_ludo.txt")
+    except:
+        print("Problemas ao abrir o arquivo de regras")
+    else:
+        with open("quadro_de_campeoes_ludo.txt") as arquivo:
+            linha_do_arquivo = arquivo.read()
+
+    return linha_do_arquivo
+
+def Organiza_quadro_de_campeoes():
+    pass
+'''usar um metodo para verificar se o campeao da partida atual
+tem direito a entrar no quadro ou nao, e depois colocar ele la, ou nao
+(ele quem decide se vai entrar ou nao no quandro de campeao), e depois
+organizar o quandro com o novo nome ou so deixar o quadro como ele ja 
+estava'''
+
+
+
 
 def Cria_Objeto_Jogador(numero_de_jogadores): #depois tem que criar um criador de BOTs maquina!!
     lista_de_jogadores = []
@@ -196,32 +222,39 @@ def Cria_Objeto_Jogador(numero_de_jogadores): #depois tem que criar um criador d
 
     return lista_de_jogadores
 
-
 def Partida_do_jogo(lista_de_jogadores):
     print("entrou no jogo ...")#depois tem que tirar isso daqui
     #variaveis para o loop da partida
     numero_de_rounds = -1
     jogando = True
-    round_end  = True
+    round_end = True
     vencedor = []
     debug = 0
-    while(jogando):#loop da partida
-        #se quiser tirar onda, da pra fazer um sort nos jogdores pra tabela de final de round ja mostrar na ordem da posicao em que o jogador esta.
-        if(round_end):
-            print(f"----- Round {numero_de_rounds} -----\n")
-            for jogadoress in lista_de_jogadores:
-                if(jogadoress.percurso_colorico == False):
-                    print(f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao: {jogadoress.posicao_no_percurso_normal}/{infos_do_jogo.percurso_normal};Ultima_jogada_do_dado: {jogadoress.ultima_jogada_do_dado}")
-                else:
-                    print(f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao no Percurso colorido: {jogadoress.posicao_percurso_colorido}/{infos_do_jogo.percurso_colorido};Ultima_jogada_do_dado: {jogadoress.ultima_jogada_do_dado}")
+    ninguem_venceu_todos_os_peos = True
 
-        #essa parte de codigo fica aqui pq eu quero mostrar o round(tabela) pos o cara ganhar, pra aparecer os numeros fechados do cara que ganhou.
+    while(jogando):#loop da partida
+
+        # essa parte de codigo fica aqui pq eu quero mostrar o round(tabela) pos o cara ganhar, pra aparecer os numeros fechados do cara que ganhou.
         if (len(vencedor) > 0 and vencedor[0] == True):
             jogando = False
-            print("-+-"*26)
-            print(f"O Jogador {vencedor[1]} ganhou a partida no round {numero_de_rounds} com as pecas de cor {vencedor[2]}")
+            print("-+-" * 26)
+            print(
+                f"O Jogador {vencedor[1]} ganhou a partida no round {numero_de_rounds} com as pecas de cor {vencedor[2]}")
             print("-+-" * 26)
             print("\n\n")
+
+
+        #se quiser tirar onda, da pra fazer um sort nos jogdores pra tabela de final de round ja mostrar na ordem da posicao em que o jogador esta.
+        if(round_end and jogando):
+            print(f"----- Round {numero_de_rounds} -----")
+            for jogadoress in lista_de_jogadores:
+                if(jogadoress.percurso_colorico == False):
+                    print(f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao no Percuso normal: {jogadoress.posicao_no_percurso_normal}/{infos_do_jogo.percurso_normal};Ultima_jogada_do_dado: {jogadoress.ultima_jogada_do_dado};Peos conquistados: {jogadoress.peoes_que_terminaram_o_trageto}/{infos_do_jogo.numero_de_peoes}")
+                else:
+                    print(f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao no Percurso colorido: {jogadoress.posicao_percurso_colorido}/{infos_do_jogo.percurso_colorido};Ultima_jogada_do_dado: {jogadoress.ultima_jogada_do_dado};Peos conquistados: {jogadoress.peoes_que_terminaram_o_trageto}/{infos_do_jogo.numero_de_peoes}")
+            print("\n")
+
+
 
         #define e organiza a lista por quem vai jogar primeiro
         '''--> falta pensar como fazer essa questao aqui...
@@ -235,27 +268,39 @@ def Partida_do_jogo(lista_de_jogadores):
         '''
         #quando o jogo comeca de verdade
         if(numero_de_rounds >= 0):
-            for jogadoress in lista_de_jogadores:
-                numero_do_dado = DADO()
-                jogadoress.ultima_jogada_do_dado = numero_do_dado
-                if(jogadoress.percurso_colorico == False):
-                    jogadoress.posicao_no_percurso_normal = jogadoress.posicao_no_percurso_normal + numero_do_dado
-                    if(jogadoress.posicao_no_percurso_normal >= infos_do_jogo.percurso_normal):
-                        jogadoress.posicao_no_percurso_normal = infos_do_jogo.percurso_normal
-                        jogadoress.percurso_colorico = True
-                elif(jogadoress.percurso_colorico == True):#redundante mas bom de ler heuheu
-                    jogadoress.posicao_percurso_colorido = jogadoress.posicao_percurso_colorido + numero_do_dado
-                    if(jogadoress.posicao_percurso_colorido == infos_do_jogo.percurso_colorido):
-                        vencedor = [True,jogadoress.nome,jogadoress.cor]
-                    else:
-                        if(jogadoress.posicao_percurso_colorido < infos_do_jogo.percurso_colorido):
-                            pass
-                        elif(jogadoress.posicao_percurso_colorido > infos_do_jogo.percurso_colorido):
-                            diferenca = jogadoress.posicao_percurso_colorido - infos_do_jogo.percurso_colorido
-                            jogadoress.posicao_percurso_colorido = infos_do_jogo.percurso_colorido - diferenca
+            if(ninguem_venceu_todos_os_peos):
+                for jogadoress in lista_de_jogadores:
+                    if (jogadoress.peoes_que_terminaram_o_trageto == infos_do_jogo.numero_de_peoes):
+                        vencedor = [True, jogadoress.nome, jogadoress.cor]
+                        ninguem_venceu_todos_os_peos = False
+
+                    numero_do_dado = DADO()
+                    jogadoress.ultima_jogada_do_dado = numero_do_dado
+                    if(jogadoress.percurso_colorico == False):
+                        jogadoress.posicao_no_percurso_normal = jogadoress.posicao_no_percurso_normal + numero_do_dado
+                        if(jogadoress.posicao_no_percurso_normal >= infos_do_jogo.percurso_normal):
+                            jogadoress.posicao_no_percurso_normal = infos_do_jogo.percurso_normal
+                            jogadoress.percurso_colorico = True
+                    elif(jogadoress.percurso_colorico == True):#redundante mas bom de ler heuheu
+                        jogadoress.posicao_percurso_colorido = jogadoress.posicao_percurso_colorido + numero_do_dado
+                        if(jogadoress.posicao_percurso_colorido == infos_do_jogo.percurso_colorido):
+                            #vencedor = [True,jogadoress.nome,jogadoress.cor]
+                            jogadoress.peoes_que_terminaram_o_trageto = jogadoress.peoes_que_terminaram_o_trageto + 1
+                            jogadoress.percurso_colorico = False
+                            jogadoress.posicao_no_percurso_normal = 0
+                        else:
+                            if(jogadoress.posicao_percurso_colorido < infos_do_jogo.percurso_colorido):
+                                pass
+                            elif(jogadoress.posicao_percurso_colorido > infos_do_jogo.percurso_colorido):
+                                diferenca = jogadoress.posicao_percurso_colorido - infos_do_jogo.percurso_colorido
+                                jogadoress.posicao_percurso_colorido = infos_do_jogo.percurso_colorido - diferenca
+
         numero_de_rounds = numero_de_rounds + 1
         debug = debug + 1
-        if(debug >= 50):
+        if(debug >= 100):
+            print("#"*12)
+            print("DEBUG deu um break no jogo por conta que excedeu o numero de rounds")
+            print("#" * 12)
             break
         #fim do loop do jogo.
 
