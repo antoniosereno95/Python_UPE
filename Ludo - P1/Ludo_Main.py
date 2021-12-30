@@ -126,6 +126,7 @@ def Menu1():
     #um round consiste em uma jogada de cada jgador no jogo sendo ele maquina ou nao.
     #implementar o score board com arquivos
 
+
 def Regras():
     try:
         a = open("ludo_regras.txt")
@@ -134,6 +135,7 @@ def Regras():
     else:
         with open("ludo_regras.txt") as arquivo:
             print(arquivo.read() + "\n\n")
+
 
 def le_quadro_de_campeoes_e_devolve_lista():
     #esse metodo so le e devolve uma lista com os negocios de cada um dos 10 campeoes
@@ -144,6 +146,9 @@ def le_quadro_de_campeoes_e_devolve_lista():
     else:
         with open("quadro_de_campeoes_ludo.txt") as arquivo:
             linha_do_arquivo = arquivo.read()
+    finally:
+        a.close()
+
 
     #bota a linha do arquivo em uma lista que vai ser passadaa diante
     lista_de_10_campeoes = []
@@ -156,6 +161,7 @@ def le_quadro_de_campeoes_e_devolve_lista():
     # com 2 itens sendo o 0 um nome e o 1 um numero de score
 
     return lista_de_10_campeoes
+
 
 def Mostra_tabela_de_Campeos():
     lista_de_campeos = le_quadro_de_campeoes_e_devolve_lista()
@@ -189,12 +195,84 @@ def tem_direito_ao_quadro_dos_campeos(lista_vencedor):
 
 
 def Reorganiza_quadro_de_campeoes(lista_vencedor):
-    pass
-'''usar um metodo para verificar se o campeao da partida atual
-tem direito a entrar no quadro ou nao, e depois colocar ele la, ou nao
-(ele quem decide se vai entrar ou nao no quandro de campeao), e depois
-organizar o quandro com o novo nome ou so deixar o quadro como ele ja 
-estava'''
+    lista_de_campeos = le_quadro_de_campeoes_e_devolve_lista()
+
+    mini_lista_novo_campeao = []
+    mini_lista_novo_campeao.append(lista_vencedor[1])
+    # add o nome a mini lista
+    mini_lista_novo_campeao.append(lista_de_campeos[2])
+    # add round ou score
+
+    if(len(lista_de_campeos) < 10):
+        lista_de_campeos.append(mini_lista_novo_campeao)
+        lista_de_campeos.sort(key=Funcion_Sort)
+        '''
+        A funcao sort tem essa funcao ai chamada key
+        que eu posso criar uma outra funcao que vai ser 
+        utilizada como criterio de arrumacao para a lista
+        -->https://www.w3schools.com/python/ref_list_sort.asp
+        '''
+    elif(len(lista_de_campeos) == 10):
+        lista_de_campeos.append(mini_lista_novo_campeao)
+        lista_de_campeos.sort(key=Funcion_Sort)
+        lista_de_campeos.pop(10)
+        '''ver se isso esta correto ou nao, 
+        # acho que [e isso, pq o item de index 10 seria o 
+        # decimo primiro item pois a contagem comeca de zero
+        '''
+    elif(len(lista_de_campeos) > 10):
+        print("DEBUG: a lista tem 11 itens, algo aconteceu de errado, vou arrumar agora, nao se preocupe")
+        lista_de_campeos.append(mini_lista_novo_campeao)
+        lista_de_campeos.sort(key=Funcion_Sort)
+        while(len(lista_de_campeos) != 10):
+            ultimo_index = len(lista_de_campeos) - 1
+            lista_de_campeos.pop(ultimo_index)
+
+    ############
+    #agora com a lista organizada, vou jogar ela no arquivo,
+    # mais nao antes de deixar ela do jeito que tem que ser
+    # com virgula entre o nome e score e ponto e virgula entre os campeos
+    ############
+
+    string_pronta_pra_jogar_no_arquivo = ""
+    lista_aux = []
+    for campeos in lista_de_campeos:
+        string_campeao = campeos[0].join(",")# nome + ","
+        string_campeao = string_campeao.join(campeos[1])# string + score
+        lista_aux.append(string_campeao)
+    #agr tenho uma lista com itens tipo str, vou ter que dar um join neles com ";"
+
+    i=0
+    for i in range(len(lista_aux)):
+        if(i != len(lista_aux)-1):#no ultimo item nao tem o join com o ";"
+            string_pronta_pra_jogar_no_arquivo.join(lista_aux[i])
+            string_pronta_pra_jogar_no_arquivo.join(";")
+        else:
+            string_pronta_pra_jogar_no_arquivo.join(lista_aux[i])
+
+    ####
+    #agora eu jogo a string pronta no arquivo, substituindo oq estava la anteriormente
+    ####
+
+    try:
+        a = open("quadro_de_campeoes_ludo.txt")
+    except:
+        print("DEBUG: Erro na hora de abrir o arquivo do quadro de campeos")
+    else:
+        with open("quadro_de_campeoes_ludo.txt") as arquivo:
+            try:
+                arquivo.write(string_pronta_pra_jogar_no_arquivo)
+                #sempre ter cuidado com o write pq ele apaga oq tem no arquivo antes de escrever nele
+            except:
+                print("DEBUG: problema na hora de tentar reescrever o arquivo quadro de campeos")
+            else:
+                print(">>>consegui reescrever o quandro de campeos")
+    finally:
+        a.close()
+
+
+def Funcion_Sort(item):
+    return item[1]
 
 
 def Cria_Objeto_Jogador(numero_de_jogadores): #depois tem que criar um criador de BOTs maquina!!
