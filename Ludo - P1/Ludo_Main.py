@@ -49,6 +49,7 @@ class Jogador:
         self.percurso_colorico = False
         self.posicao_percurso_colorido = 0
         self.peoes_que_terminaram_o_trageto = 0
+        self.bot = False
 
     def __str__(self):
         return f"Jogador: {str(self.nome).title()};Cor da peca: {str(self.cor).title()}"
@@ -117,7 +118,8 @@ def Menu1():
     print(f"Menu Principal:\n"
           f"1. Iniciar uma partida\n"
           f"2. Ver as Regras do jogo\n"
-          f"3. Encerrar o programa\n"
+          f"3. Tabela dos Campeoes\n"
+          f"4. Encerrar o programa\n"
           f"Digite o numero da opcao desejada:")
     #implementar um score board depois, tipo dos jogos de antigamente, se uma pessoa ganha o jogo e esta entre os 10 primeiros da tabela ja existenete ela pode colocar seu nome la ao lado do seu score.
     #o score consiste an soma dos roudns que ela jogou para ganhar, menos rounds remete a um score melhor.
@@ -133,7 +135,7 @@ def Regras():
         with open("ludo_regras.txt") as arquivo:
             print(arquivo.read() + "\n\n")
 
-def le_quadro_de_campeoes():
+def le_quadro_de_campeoes_e_devolve_lista():
     #esse metodo so le e devolve uma lista com os negocios de cada um dos 10 campeoes
     try:
         a = open("quadro_de_campeoes_ludo.txt")
@@ -143,17 +145,56 @@ def le_quadro_de_campeoes():
         with open("quadro_de_campeoes_ludo.txt") as arquivo:
             linha_do_arquivo = arquivo.read()
 
-    return linha_do_arquivo
+    #bota a linha do arquivo em uma lista que vai ser passadaa diante
+    lista_de_10_campeoes = []
+    lista = linha_do_arquivo.split(";")
+    for itens in lista:
+        mini_lista_interna = []
+        mini_lista_interna = itens.split(",")
+        lista_de_10_campeoes.append(mini_lista_interna)
+    #agora a lisat de campeoes tem 10 mini listas cada uma
+    # com 2 itens sendo o 0 um nome e o 1 um numero de score
 
-def Organiza_quadro_de_campeoes():
+    return lista_de_10_campeoes
+
+def Mostra_tabela_de_Campeos():
+    lista_de_campeos = le_quadro_de_campeoes_e_devolve_lista()
+
+    print("------ Tabela de Campeos ------")
+    for campeoes in lista_de_campeos:
+        print(f"Campeao: {campeoes[0]} --- Score: {campeoes[1]}")
+    print("-------------------------------")
+
+
+def tem_direito_ao_quadro_dos_campeos(lista_vencedor):
+    tem_direito = False
+    lista_de_campeos = le_quadro_de_campeoes_e_devolve_lista()
+
+    if(lista_vencedor[4] == True):
+        tem_direito = False
+
+    elif(len(lista_de_campeos) < 10):
+        tem_direito = True
+
+    elif(len(lista_de_campeos) == 10):
+        for campeos_na_lista in lista_de_campeos:
+            if(int(lista_vencedor[2]) >= int(campeos_na_lista[1])):
+                #nesse if aqui em cima eu comparo os rounds de cada campeao.
+                tem_direito = True
+
+    elif(len(lista_de_campeos) > 10):
+        print("DEBUG: lista de campeos tem indice maior que 10, arruma isso ai bro heuheueh")
+
+    return tem_direito
+
+
+def Reorganiza_quadro_de_campeoes(lista_vencedor):
     pass
 '''usar um metodo para verificar se o campeao da partida atual
 tem direito a entrar no quadro ou nao, e depois colocar ele la, ou nao
 (ele quem decide se vai entrar ou nao no quandro de campeao), e depois
 organizar o quandro com o novo nome ou so deixar o quadro como ele ja 
 estava'''
-
-
 
 
 def Cria_Objeto_Jogador(numero_de_jogadores): #depois tem que criar um criador de BOTs maquina!!
@@ -220,7 +261,52 @@ def Cria_Objeto_Jogador(numero_de_jogadores): #depois tem que criar um criador d
         '''
         numero_do_jogador = numero_do_jogador + 1
 
+    lista_de_jogadores = Cria_bots_jogadores(lista_de_jogadores)
     return lista_de_jogadores
+
+
+def Cria_bots_jogadores(lista_de_jogadores):
+    if(len(lista_de_jogadores) != 4):
+        numero_de_bots = 4 - len(lista_de_jogadores)
+        bot_numero_tal = 1
+        while(numero_de_bots > 0):
+            bot_nome = ""
+            bot_cor = ""
+            lista_de_cores_sendo_usadas = []
+            lista_de_cores_nao_usadas = []
+            bot_nome = f"-BOT 0{bot_numero_tal}-"
+            #para escolher a cor do bot teremos que ver as cores que ainda nao foram escolhidas
+            for jogadores in lista_de_jogadores:
+                lista_de_cores_sendo_usadas.append(jogadores.cor)
+
+            for cores in infos_do_jogo.cores_peoes:
+                if cores not in lista_de_cores_sendo_usadas:
+                    lista_de_cores_nao_usadas.append(cores)
+
+            bot_cor = lista_de_cores_nao_usadas[0]
+            #cor escohida, sempre vai ser o primeiro item da lista de cores nao usadas
+            #pq a lista toda ve que roda o while, se torna vazia denovo.
+
+            #inserir infos nos bots
+            bot_jogador = Jogador(bot_nome,bot_cor)
+            bot_jogador.bot = True
+
+            #e o mais importante add o bot a lista de jogadores
+            lista_de_jogadores.append(bot_jogador)
+
+            bot_numero_tal = bot_numero_tal + 1
+            numero_de_bots = numero_de_bots - 1
+
+    #debug
+    print("-----debug---")
+    for j in lista_de_jogadores:
+        print(f"nome:{j.nome}; {j.cor} ;bot: {j.bot} ")
+
+    print("-----fim do debug---")
+    #fim do debug
+
+    return lista_de_jogadores
+
 
 def Partida_do_jogo(lista_de_jogadores):
     print("entrou no jogo ...")#depois tem que tirar isso daqui
@@ -239,9 +325,24 @@ def Partida_do_jogo(lista_de_jogadores):
             jogando = False
             print("-+-" * 26)
             print(
-                f"O Jogador {vencedor[1]} ganhou a partida no round {numero_de_rounds} com as pecas de cor {vencedor[2]}")
+                f"O Jogador {vencedor[1]} ganhou a partida no round {vencedor[2]} com as pecas de cor {vencedor[3]}")
             print("-+-" * 26)
             print("\n\n")
+            if(tem_direito_ao_quadro_dos_campeos(vencedor)):
+                #faz a pergunta se ele quer que seu nome entre no quadro de campeos
+                print("-+-"*12)
+                print("Parabens!, voce tem direito de colocar seu nome no quadro de campeos!!")
+                resp_campeao = input("Deseja colocar seu nome no quadro de campeos?(S/N) ")
+                while(resp_campeao.upper() not in "SN"):
+                    resp_campeao = input("resposta invalida, tente novamente(S/N): ")
+                if(resp_campeao.upper() == "S"):
+                    try:
+                        Reorganiza_quadro_de_campeoes(vencedor)
+                    except:
+                        print("DEBUG: deu merda na hora da chamada do metodo Reorganiza_quadro_de_campeoes(vencedor) ")
+                    else:
+                        print("Pronto, agora voce ja pode acesssar o quadro de campeos no menu principal e seu nome estara la! =)\n")
+                print("-+-" * 12)
 
 
         #se quiser tirar onda, da pra fazer um sort nos jogdores pra tabela de final de round ja mostrar na ordem da posicao em que o jogador esta.
@@ -271,10 +372,16 @@ def Partida_do_jogo(lista_de_jogadores):
             if(ninguem_venceu_todos_os_peos):
                 for jogadoress in lista_de_jogadores:
                     if (jogadoress.peoes_que_terminaram_o_trageto == infos_do_jogo.numero_de_peoes):
-                        vencedor = [True, jogadoress.nome, jogadoress.cor]
+                        #lista vencedor
+                        vencedor = [True, jogadoress.nome, numero_de_rounds , jogadoress.cor, jogadoress.bot]
                         ninguem_venceu_todos_os_peos = False
 
-                    numero_do_dado = DADO()
+                    #perte do nerf no dado dos bots
+                    if(jogadoress.bot == True):
+                        numero_do_dado = DADO_dos_BOTS()
+                    else:
+                        numero_do_dado = DADO()
+
                     jogadoress.ultima_jogada_do_dado = numero_do_dado
                     if(jogadoress.percurso_colorico == False):
                         jogadoress.posicao_no_percurso_normal = jogadoress.posicao_no_percurso_normal + numero_do_dado
@@ -304,8 +411,15 @@ def Partida_do_jogo(lista_de_jogadores):
             break
         #fim do loop do jogo.
 
+
 def DADO():
     numero_aleatorio = random.randint(1,6)
+    return numero_aleatorio
+
+
+def DADO_dos_BOTS():
+    #os bots estavam ganhando muitas partidas, entao pra facilitar eu vou dar uma nerfada nos bots
+    numero_aleatorio = random.randint(1,5)
     return numero_aleatorio
 
 ################ Main ####################
@@ -323,7 +437,7 @@ if(__name__ == "__main__"):
     while(True):
         Menu1()
         resposta_1 = input()
-        while resposta_1 not in "123":
+        while resposta_1 not in "1234":
             resposta_1 = input("Entrada invalida, tente novamente:")
 
         ###OPCOES DO MENU 1:###
@@ -340,8 +454,8 @@ if(__name__ == "__main__"):
             #inicio um novo jogo com a lista de objetos jogadores a criada
 
             ##debug34
-            print(lista_de_jogadores[0])
-            print(lista_de_jogadores[1])
+            # print(lista_de_jogadores[0])
+            # print(lista_de_jogadores[1])
             ##--> o debug deu certo =)
 
             ### inicia-se uma nova PARTIDA de Ludo ####
@@ -352,8 +466,12 @@ if(__name__ == "__main__"):
         elif(int(resposta_1) == 2):
             Regras()
 
-        #sair do programa
+        #tabela dos campeos
         elif(int(resposta_1) == 3):
+            Mostra_tabela_de_Campeos()
+
+        #sair do programa
+        elif(int(resposta_1) == 4):
             Sair = input("Voce deseja realmente sair?(S/N)")
             while Sair.upper() not in "SN":
                 Sair = input("entrada invalida, tente novamente(S/N):")

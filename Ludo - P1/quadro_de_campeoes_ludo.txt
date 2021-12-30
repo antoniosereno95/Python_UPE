@@ -1,9 +1,1 @@
-###
-#esse arquivo vai conter 10 nomes e 10 scores de rounds todos somente
-#separados por ponto e virgula.
-ex:
-nome_campeao;scorecampeao(numero intiro);nome_segundo_campeao;score_do_segundo_campeao
-
-A ideia [e tr somente uma linha de arquivo e organizar
-as coisas la no programa mesmo.
-###
+Antonio,13;Victor,20;Bia,23;David,25;Luis,27
