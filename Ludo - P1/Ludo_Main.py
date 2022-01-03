@@ -1,3 +1,7 @@
+################ back up das infos do quadro de campeoes ###########
+'''
+Antonio,11;Bia,22;David,33;Luis,44;Victor,55
+'''
 ################ Regras do Jogo ##########
 """
 -->Video para instrucoes: https://www.youtube.com/watch?v=m8NHoIqFg4A
@@ -49,6 +53,7 @@ class Jogador:
         self.percurso_colorico = False
         self.posicao_percurso_colorido = 0
         self.peoes_que_terminaram_o_trageto = 0
+        self.peoes_na_zona_neutra = True
         self.bot = False
 
     def __str__(self):
@@ -149,9 +154,16 @@ def le_quadro_de_campeoes_e_devolve_lista():
     finally:
         a.close()
 
+    """
+        -->problema final (edit: 06:40h de 03/01/22)
+        Nao estou conseguindo retirar o '\n'(pula-linha) que fica no final da string
+        retirada do arquivo, logo depois do score do luis, em '27\n' esse pula-linha
+        que estou falando
+    """
 
     #bota a linha do arquivo em uma lista que vai ser passadaa diante
     lista_de_10_campeoes = []
+    linha_do_arquivo.replace("\n", "")
     lista = linha_do_arquivo.split(";")
     for itens in lista:
         mini_lista_interna = []
@@ -159,6 +171,15 @@ def le_quadro_de_campeoes_e_devolve_lista():
         lista_de_10_campeoes.append(mini_lista_interna)
     #agora a lisat de campeoes tem 10 mini listas cada uma
     # com 2 itens sendo o 0 um nome e o 1 um numero de score
+
+    #retira o \n e qualquer espaco em branco que eu notei que fica no fim da lista
+    for elemento in lista_de_10_campeoes:
+        elemento[0].replace("\n", "").replace(" ", "")
+        elemento[1].replace("\n", "").replace(" ", "")
+
+    # print("debug no le_quadro_de_campeoes_e_devolve_lista()")
+    # print(lista_de_10_campeoes)
+    # print("fim do debug no le_quadro_de_campeoes_e_devolve_lista()")
 
     return lista_de_10_campeoes
 
@@ -197,14 +218,60 @@ def tem_direito_ao_quadro_dos_campeos(lista_vencedor):
 def Reorganiza_quadro_de_campeoes(lista_vencedor):
     lista_de_campeos = le_quadro_de_campeoes_e_devolve_lista()
 
+    print("debug 1")
+    print(lista_de_campeos)
+    print("debug 1")
+
     mini_lista_novo_campeao = []
     mini_lista_novo_campeao.append(lista_vencedor[1])
+    # print("debug 1.1")
+    # print(mini_lista_novo_campeao)
+    # print("debug 1.1")
     # add o nome a mini lista
-    mini_lista_novo_campeao.append(lista_de_campeos[2])
+
+    mini_lista_novo_campeao.append(str(lista_vencedor[2]))
+    print("debug 1.2")
+    print(mini_lista_novo_campeao)
+    print("debug 1.2")
     # add round ou score
+    '''
+    OQ aparece na tela do debug-->
+O Jogador ant ganhou a partida no round 81 com as pecas de cor Azul
+debug 1
+[['Antonio', '13'], ['Victor', '20'], ['Bia', '23'], ['David', '25'], ['Luis', '27\n']]
+debug 1
+debug 1.2
+['Bia', '23']
+debug 1.2
+debug 2
+[['Antonio', '13'], ['Victor', '20'], ['Bia', '23'], ['Bia', '23'], ['David', '25'], ['Luis', '27\n']]
+debug 2
+debug 3
+
+debug 3
+
+    -->Mesmo com o jogador ant ganahndo a bia acaba aparecendo na mini lista, nao sei pq!! =(
+    ;; agora eu sei pq, estava copiando de uma lista errada heuehuheue #resolvido
+    '''
 
     if(len(lista_de_campeos) < 10):
         lista_de_campeos.append(mini_lista_novo_campeao)
+        """Erro do update "projeto dia 05 - 06 (meia noite huehue)"
+            -->O erro encontrado foi basicamente pq eu tenho uma lista chamada 'lista_de_campeos'
+            e eu preenchi essa lista com varios elementos que sao tambem listas,so que com 2 e
+            lementos(nome e round), enfim ... quando eu coloco a funcao .sort() na minha lista_de_campeos
+            eu acabo comparando uma string(o elemento 1 da mini_lista) com um tipo string que no caso [e
+            a posicao onde a mini lista deveria ficar dentro da lista, e [e esse o erro 
+            --> .sort() cant compare str with list
+            =====>> solucao, derei de fazer um algoritimo buble sort para resolver meu problema
+                    pois a funcao sort nao ira conseguir resolver para mim, como eu achava antes.
+            >>>> linha do erro: lista_de_campeos.sort(key=Funcion_Sort)
+            >>>>>>>funcao chamada internamente no sort:
+                            def Funcion_Sort(item):
+                                return item[1]
+            
+            fim dos comentarios sobre o erro encontrado.          
+        """
         lista_de_campeos.sort(key=Funcion_Sort)
         '''
         A funcao sort tem essa funcao ai chamada key
@@ -225,8 +292,12 @@ def Reorganiza_quadro_de_campeoes(lista_vencedor):
         lista_de_campeos.append(mini_lista_novo_campeao)
         lista_de_campeos.sort(key=Funcion_Sort)
         while(len(lista_de_campeos) != 10):
-            ultimo_index = len(lista_de_campeos) - 1
-            lista_de_campeos.pop(ultimo_index)
+            ultimo_index = int(len(lista_de_campeos)) - 1
+            lista_de_campeos.pop(int(ultimo_index))
+
+    print("debug 2")
+    print(lista_de_campeos)
+    print("debug 2")
 
     ############
     #agora com a lista organizada, vou jogar ela no arquivo,
@@ -237,8 +308,8 @@ def Reorganiza_quadro_de_campeoes(lista_vencedor):
     string_pronta_pra_jogar_no_arquivo = ""
     lista_aux = []
     for campeos in lista_de_campeos:
-        string_campeao = campeos[0].join(",")# nome + ","
-        string_campeao = string_campeao.join(campeos[1])# string + score
+        string_campeao = str(campeos[0]).join(",")# nome + ","
+        string_campeao = str(string_campeao).join(str(campeos[1]))# string + score
         lista_aux.append(string_campeao)
     #agr tenho uma lista com itens tipo str, vou ter que dar um join neles com ";"
 
@@ -250,29 +321,44 @@ def Reorganiza_quadro_de_campeoes(lista_vencedor):
         else:
             string_pronta_pra_jogar_no_arquivo.join(lista_aux[i])
 
+    """
+    -->problema final (edit: 06:40h de 03/01/22)
+    Agora o problema [e aqui entre o debug 2 e o debug 3, o arquivo esta sendo mudado e escrito 
+    com uma string vazia, a string_pronta_pra_jogar_no_arquivo nao tem nada, 
+    ate pq no debug 3 quando ela [e printada nao aparece NADA!!!
+    """
+    print("debug 3")
+    print(string_pronta_pra_jogar_no_arquivo)
+    print("debug 3")
+
     ####
     #agora eu jogo a string pronta no arquivo, substituindo oq estava la anteriormente
     ####
 
     try:
-        a = open("quadro_de_campeoes_ludo.txt")
+        a = open("quadro_de_campeoes_ludo.txt",'w')
     except:
         print("DEBUG: Erro na hora de abrir o arquivo do quadro de campeos")
     else:
-        with open("quadro_de_campeoes_ludo.txt") as arquivo:
-            try:
-                arquivo.write(string_pronta_pra_jogar_no_arquivo)
-                #sempre ter cuidado com o write pq ele apaga oq tem no arquivo antes de escrever nele
-            except:
-                print("DEBUG: problema na hora de tentar reescrever o arquivo quadro de campeos")
-            else:
-                print(">>>consegui reescrever o quandro de campeos")
+        #arquivo_teste.open("quadro_de_campeoes_ludo.txt",'w+')
+        a.write(string_pronta_pra_jogar_no_arquivo)
+
+        # with open("quadro_de_campeoes_ludo.txt") as arquivo:
+        #     try:
+        #         arquivo.write(string_pronta_pra_jogar_no_arquivo)
+        #         #sempre ter cuidado com o write pq ele apaga oq tem no arquivo antes de escrever nele
+        #     except:
+        #         print("DEBUG: problema na hora de tentar reescrever o arquivo quadro de campeos")
+        #     else:
+        #         print(">>>consegui reescrever o quandro de campeos")
+
     finally:
         a.close()
 
 
+
 def Funcion_Sort(item):
-    return item[1]
+    return str(item[1])
 
 
 def Cria_Objeto_Jogador(numero_de_jogadores): #depois tem que criar um criador de BOTs maquina!!
@@ -387,7 +473,7 @@ def Cria_bots_jogadores(lista_de_jogadores):
 
 
 def Partida_do_jogo(lista_de_jogadores):
-    print("entrou no jogo ...")#depois tem que tirar isso daqui
+    print("\nEntrou no jogo ...")#depois tem que tirar isso daqui
     #variaveis para o loop da partida
     numero_de_rounds = -1
     jogando = True
@@ -404,6 +490,9 @@ def Partida_do_jogo(lista_de_jogadores):
             print("-+-" * 26)
             print(
                 f"O Jogador {vencedor[1]} ganhou a partida no round {vencedor[2]} com as pecas de cor {vencedor[3]}")
+            print("debug")
+            print(vencedor)
+            print("fim debug")
             print("-+-" * 26)
             print("\n\n")
             if(tem_direito_ao_quadro_dos_campeos(vencedor)):
@@ -414,12 +503,14 @@ def Partida_do_jogo(lista_de_jogadores):
                 while(resp_campeao.upper() not in "SN"):
                     resp_campeao = input("resposta invalida, tente novamente(S/N): ")
                 if(resp_campeao.upper() == "S"):
-                    try:
-                        Reorganiza_quadro_de_campeoes(vencedor)
-                    except:
-                        print("DEBUG: deu merda na hora da chamada do metodo Reorganiza_quadro_de_campeoes(vencedor) ")
-                    else:
-                        print("Pronto, agora voce ja pode acesssar o quadro de campeos no menu principal e seu nome estara la! =)\n")
+                    Reorganiza_quadro_de_campeoes(vencedor)
+                    # try:
+                    #     Reorganiza_quadro_de_campeoes(vencedor)
+                    # except:
+                    #     print("DEBUG: deu merda na hora da chamada do metodo Reorganiza_quadro_de_campeoes(vencedor) ")
+                    # else:
+                    #     print("Pronto, agora voce ja pode acesssar o quadro de campeos no menu principal e seu nome estara la! =)\n")
+
                 print("-+-" * 12)
 
 
@@ -429,6 +520,8 @@ def Partida_do_jogo(lista_de_jogadores):
             for jogadoress in lista_de_jogadores:
                 if(jogadoress.percurso_colorico == False):
                     print(f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao no Percuso normal: {jogadoress.posicao_no_percurso_normal}/{infos_do_jogo.percurso_normal};Ultima_jogada_do_dado: {jogadoress.ultima_jogada_do_dado};Peos conquistados: {jogadoress.peoes_que_terminaram_o_trageto}/{infos_do_jogo.numero_de_peoes}")
+                elif(jogadoress.peoes_na_zona_neutra == True):#redundante
+                    print(f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao no Percuso normal: Esta tentando tirar um peao da zona neutra ;Ultima_jogada_do_dado: {jogadoress.ultima_jogada_do_dado};Peos conquistados: {jogadoress.peoes_que_terminaram_o_trageto}/{infos_do_jogo.numero_de_peoes}")
                 else:
                     print(f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao no Percurso colorido: {jogadoress.posicao_percurso_colorido}/{infos_do_jogo.percurso_colorido};Ultima_jogada_do_dado: {jogadoress.ultima_jogada_do_dado};Peos conquistados: {jogadoress.peoes_que_terminaram_o_trageto}/{infos_do_jogo.numero_de_peoes}")
             print("\n")
@@ -459,34 +552,48 @@ def Partida_do_jogo(lista_de_jogadores):
                         numero_do_dado = DADO_dos_BOTS()
                     else:
                         numero_do_dado = DADO()
-
                     jogadoress.ultima_jogada_do_dado = numero_do_dado
-                    if(jogadoress.percurso_colorico == False):
-                        jogadoress.posicao_no_percurso_normal = jogadoress.posicao_no_percurso_normal + numero_do_dado
-                        if(jogadoress.posicao_no_percurso_normal >= infos_do_jogo.percurso_normal):
-                            jogadoress.posicao_no_percurso_normal = infos_do_jogo.percurso_normal
-                            jogadoress.percurso_colorico = True
-                    elif(jogadoress.percurso_colorico == True):#redundante mas bom de ler heuheu
-                        jogadoress.posicao_percurso_colorido = jogadoress.posicao_percurso_colorido + numero_do_dado
-                        if(jogadoress.posicao_percurso_colorido == infos_do_jogo.percurso_colorido):
-                            #vencedor = [True,jogadoress.nome,jogadoress.cor]
-                            jogadoress.peoes_que_terminaram_o_trageto = jogadoress.peoes_que_terminaram_o_trageto + 1
-                            jogadoress.percurso_colorico = False
-                            jogadoress.posicao_no_percurso_normal = 0
-                        else:
-                            if(jogadoress.posicao_percurso_colorido < infos_do_jogo.percurso_colorido):
-                                pass
-                            elif(jogadoress.posicao_percurso_colorido > infos_do_jogo.percurso_colorido):
-                                diferenca = jogadoress.posicao_percurso_colorido - infos_do_jogo.percurso_colorido
-                                jogadoress.posicao_percurso_colorido = infos_do_jogo.percurso_colorido - diferenca
+                    #parte nova escrita em 03/01/22
+                    if(jogadoress.peoes_na_zona_neutra == True):#redundante
+                        if(int(numero_do_dado) == 6):
+                            jogadoress.posicao_no_percurso_normal = 6
+                            jogadoress.peoes_na_zona_neutra = False
+                        elif(int(numero_do_dado) == 1):
+                            jogadoress.posicao_no_percurso_normal = 1
+                            jogadoress.peoes_na_zona_neutra = False
+
+                    if(jogadoress.posicao_no_percurso_normal >= 1):
+                        #o jogador so passa dessa parte se ele conseguir tirar ou 1 ou 6, e tirar o peao da ona neutra
+                        #fim da parte nova escrita em 03/01/22 #FUNCIONOU
+                        if(jogadoress.percurso_colorico == False):
+                            jogadoress.posicao_no_percurso_normal = jogadoress.posicao_no_percurso_normal + numero_do_dado
+                            if(jogadoress.posicao_no_percurso_normal >= infos_do_jogo.percurso_normal):
+                                jogadoress.posicao_no_percurso_normal = infos_do_jogo.percurso_normal
+                                jogadoress.percurso_colorico = True
+                        elif(jogadoress.percurso_colorico == True):#redundante mas bom de ler heuheu
+                            jogadoress.posicao_percurso_colorido = jogadoress.posicao_percurso_colorido + numero_do_dado
+                            if(jogadoress.posicao_percurso_colorido == infos_do_jogo.percurso_colorido):
+                                #vencedor = [True,jogadoress.nome,jogadoress.cor]
+                                jogadoress.peoes_que_terminaram_o_trageto = jogadoress.peoes_que_terminaram_o_trageto + 1
+                                jogadoress.percurso_colorico = False
+                                jogadoress.peoes_na_zona_neutra = True
+                                jogadoress.posicao_no_percurso_normal = 0
+                                jogadoress.posicao_percurso_colorido = 0
+                            else:
+                                if(jogadoress.posicao_percurso_colorido < infos_do_jogo.percurso_colorido):
+                                    pass
+                                elif(jogadoress.posicao_percurso_colorido > infos_do_jogo.percurso_colorido):
+                                    diferenca = jogadoress.posicao_percurso_colorido - infos_do_jogo.percurso_colorido
+                                    jogadoress.posicao_percurso_colorido = infos_do_jogo.percurso_colorido - diferenca
 
         numero_de_rounds = numero_de_rounds + 1
         debug = debug + 1
-        if(debug >= 100):
-            print("#"*12)
-            print("DEBUG deu um break no jogo por conta que excedeu o numero de rounds")
-            print("#" * 12)
-            break
+        # if(debug >= 600): #depois que eu implementei a zona neutra esse limite teve que sair de 100 e ir pra esse numero absurdo ai heuehuehu
+        #     print("#"*12)
+        #     print("DEBUG deu um break no jogo por conta que excedeu o numero de rounds")
+        #     print("#" * 12)
+        #     break
+        ##--> tive que tirar o limite pq ninguem estava conseguindo terminar o jog sem dar um break
         #fim do loop do jogo.
 
 
@@ -499,6 +606,7 @@ def DADO_dos_BOTS():
     #os bots estavam ganhando muitas partidas, entao pra facilitar eu vou dar uma nerfada nos bots
     numero_aleatorio = random.randint(1,5)
     return numero_aleatorio
+
 
 ################ Main ####################
 if(__name__ == "__main__"):
