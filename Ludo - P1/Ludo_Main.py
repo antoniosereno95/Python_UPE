@@ -305,21 +305,28 @@ debug 3
     # com virgula entre o nome e score e ponto e virgula entre os campeos
     ############
 
-    string_pronta_pra_jogar_no_arquivo = ""
+
     lista_aux = []
-    for campeos in lista_de_campeos:
-        string_campeao = str(campeos[0]).join(",")# nome + ","
-        string_campeao = str(string_campeao).join(str(campeos[1]))# string + score
-        lista_aux.append(string_campeao)
+    for Elementos_lista_com_2_itens in lista_de_campeos:
+        string_aux = ""
+        string_aux = str(Elementos_lista_com_2_itens[0]) + "," + Elementos_lista_com_2_itens[1]#nome + , + score
+        lista_aux.append(string_aux)
     #agr tenho uma lista com itens tipo str, vou ter que dar um join neles com ";"
 
-    i=0
-    for i in range(len(lista_aux)):
-        if(i != len(lista_aux)-1):#no ultimo item nao tem o join com o ";"
-            string_pronta_pra_jogar_no_arquivo.join(lista_aux[i])
-            string_pronta_pra_jogar_no_arquivo.join(";")
+    print("debug 2.2")
+    print(lista_aux) # resolvido
+    print("debug 2,2")
+
+    string_pronta_pra_jogar_no_arquivo = ""
+    i = 0
+    for elemento in lista_aux:
+        if(i == 0):
+            string_pronta_pra_jogar_no_arquivo = string_pronta_pra_jogar_no_arquivo + str(elemento)
         else:
-            string_pronta_pra_jogar_no_arquivo.join(lista_aux[i])
+            string_pronta_pra_jogar_no_arquivo = string_pronta_pra_jogar_no_arquivo + ";" +str(elemento)
+        i = i +1
+    string_pronta_pra_jogar_no_arquivo = string_pronta_pra_jogar_no_arquivo + "\n"
+
 
     """
     -->problema final (edit: 06:40h de 03/01/22)
@@ -327,6 +334,7 @@ debug 3
     com uma string vazia, a string_pronta_pra_jogar_no_arquivo nao tem nada, 
     ate pq no debug 3 quando ela [e printada nao aparece NADA!!!
     """
+
     print("debug 3")
     print(string_pronta_pra_jogar_no_arquivo)
     print("debug 3")
@@ -356,8 +364,9 @@ debug 3
         a.close()
 
 
-
 def Funcion_Sort(item):
+    if "\n" in str(item[1]):
+        item[1] = str(item[1]).replace("\n","")
     return str(item[1])
 
 
@@ -503,13 +512,13 @@ def Partida_do_jogo(lista_de_jogadores):
                 while(resp_campeao.upper() not in "SN"):
                     resp_campeao = input("resposta invalida, tente novamente(S/N): ")
                 if(resp_campeao.upper() == "S"):
-                    Reorganiza_quadro_de_campeoes(vencedor)
-                    # try:
-                    #     Reorganiza_quadro_de_campeoes(vencedor)
-                    # except:
-                    #     print("DEBUG: deu merda na hora da chamada do metodo Reorganiza_quadro_de_campeoes(vencedor) ")
-                    # else:
-                    #     print("Pronto, agora voce ja pode acesssar o quadro de campeos no menu principal e seu nome estara la! =)\n")
+                    #Reorganiza_quadro_de_campeoes(vencedor)
+                    try:
+                        Reorganiza_quadro_de_campeoes(vencedor)
+                    except:
+                        print("DEBUG: deu merda na hora da chamada do metodo Reorganiza_quadro_de_campeoes(vencedor) ")
+                    else:
+                        print("Pronto, agora voce ja pode acesssar o quadro de campeos no menu principal e seu nome estara la! =)\n")
 
                 print("-+-" * 12)
 
