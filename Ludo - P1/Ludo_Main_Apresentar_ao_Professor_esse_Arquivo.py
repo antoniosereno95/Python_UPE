@@ -8,6 +8,8 @@ class Infos_do_Jogo:
         self.percurso_colorido = 6
         self.cores_peoes = ["Azul", "Amarelo", "Vermelho", "Verde"]
         self.numero_de_peoes = 4
+        self.dificuldade_bots = 0
+        self.hardocore = False
 
 
 class Jogador:
@@ -23,6 +25,7 @@ class Jogador:
         self.peoes_que_terminaram_o_trageto = 0
         self.peoes_na_zona_neutra = True
         self.bot = False
+        self.primeira_jogada = 0
 
     def __str__(self):
         return f"Jogador: {str(self.nome).title()};Cor da peca: {str(self.cor).title()}"
@@ -36,6 +39,15 @@ def Menu1():
           f"3. Tabela dos Campeoes\n"
           f"4. Encerrar o programa\n"
           f"Digite o numero da opcao desejada:")
+
+
+def Menu_dificildade_dos_bots():
+    print(f"Player: voce ira jogar contra bots neste jogo!\nPorvafor escolha uma dificuldade:\n"
+          f"1. Facil - Os bot nao tirar numeros altos nos dados.\n"
+          f"2. Medio - Os bot tem menos chances de tirar numeros altos no dados.\n"
+          f"3. Dificil - Os bots tem as mesmas chances que um Player nos dados\n"
+          f"4. Hardcore - O Player tem DESVANTAGEM nos dados em relacao aos bots.\n"
+          )
 
 
 def Regras():
@@ -189,6 +201,10 @@ def Funcion_Sort(item):
     return str(item[1])
 
 
+def Funcion_Sort_Ordem_de_Jogada(jogador):
+    return int(jogador.primeira_jogada)
+
+
 def Cria_Objeto_Jogador(numero_de_jogadores):  # depois tem que criar um criador de BOTs maquina!!
     lista_de_jogadores = []
     n_jogador = numero_de_jogadores
@@ -278,7 +294,7 @@ def Cria_bots_jogadores(lista_de_jogadores):
 def Partida_do_jogo(lista_de_jogadores):
     print("\nEntrou no jogo ...")  # depois tem que tirar isso daqui
     # variaveis para o loop da partida
-    numero_de_rounds = -1
+    numero_do_rounds = -1
     jogando = True
     round_end = True
     vencedor = []
@@ -314,9 +330,12 @@ def Partida_do_jogo(lista_de_jogadores):
                 print("-+-" * 12)
 
         if (round_end and jogando):
-            print(f"----- Round {numero_de_rounds} -----")
+            print(f"----- Round {numero_do_rounds} -----")
             for jogadoress in lista_de_jogadores:
-                if (jogadoress.percurso_colorico == False):
+                if(numero_do_rounds == 0):
+                    print(
+                        f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao no Percuso normal: {jogadoress.posicao_no_percurso_normal}/{infos_do_jogo.percurso_normal};Primeira_jogada_do_dado: {jogadoress.primeira_jogada};Peos conquistados: {jogadoress.peoes_que_terminaram_o_trageto}/{infos_do_jogo.numero_de_peoes}")
+                elif (jogadoress.percurso_colorico == False):
                     print(
                         f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao no Percuso normal: {jogadoress.posicao_no_percurso_normal}/{infos_do_jogo.percurso_normal};Ultima_jogada_do_dado: {jogadoress.ultima_jogada_do_dado};Peos conquistados: {jogadoress.peoes_que_terminaram_o_trageto}/{infos_do_jogo.numero_de_peoes}")
                 elif (jogadoress.peoes_na_zona_neutra == True):  # redundante
@@ -327,13 +346,23 @@ def Partida_do_jogo(lista_de_jogadores):
                         f"Player: {str(jogadoress.nome).title()};Cor da pesa: {jogadoress.cor}; Posicao no Percurso colorido: {jogadoress.posicao_percurso_colorido}/{infos_do_jogo.percurso_colorido};Ultima_jogada_do_dado: {jogadoress.ultima_jogada_do_dado};Peos conquistados: {jogadoress.peoes_que_terminaram_o_trageto}/{infos_do_jogo.numero_de_peoes}")
             print("\n")
 
+        if(numero_do_rounds == -1):
+            for jogadoress in lista_de_jogadores:
+                if(jogadoress.bot):
+                    jogadoress.primeira_jogada = DADO_dos_BOTS()
+                else:
+                    jogadoress.primeira_jogada = DADO()
+
+            lista_de_jogadores.sort(key=Funcion_Sort_Ordem_de_Jogada,reverse=True)
+            #arruma a lista de jogadors ja na ordem de jogada, e o jogo continua
+
         # quando o jogo comeca de verdade
-        if (numero_de_rounds >= 0):
+        if (numero_do_rounds >= 0):
             if (ninguem_venceu_todos_os_peos):
                 for jogadoress in lista_de_jogadores:
                     if (jogadoress.peoes_que_terminaram_o_trageto == infos_do_jogo.numero_de_peoes):
                         # lista vencedor
-                        vencedor = [True, jogadoress.nome, numero_de_rounds, jogadoress.cor, jogadoress.bot]
+                        vencedor = [True, jogadoress.nome, numero_do_rounds, jogadoress.cor, jogadoress.bot]
                         ninguem_venceu_todos_os_peos = False
 
                     # perte do nerf no dado dos bots
@@ -350,43 +379,58 @@ def Partida_do_jogo(lista_de_jogadores):
                         elif (int(numero_do_dado) == 1):
                             jogadoress.posicao_no_percurso_normal = 1
                             jogadoress.peoes_na_zona_neutra = False
+                    else:
+                        if (jogadoress.posicao_no_percurso_normal >= 1):
+                            # o jogador so passa dessa parte se ele conseguir tirar ou 1 ou 6, e tirar o peao da ona neutra
+                            if (jogadoress.percurso_colorico == False):
+                                jogadoress.posicao_no_percurso_normal = jogadoress.posicao_no_percurso_normal + numero_do_dado
+                                if (jogadoress.posicao_no_percurso_normal >= infos_do_jogo.percurso_normal):
+                                    jogadoress.posicao_no_percurso_normal = infos_do_jogo.percurso_normal
+                                    jogadoress.percurso_colorico = True
+                            elif (jogadoress.percurso_colorico == True):  # redundante mas bom de ler heuheu
+                                jogadoress.posicao_percurso_colorido = jogadoress.posicao_percurso_colorido + numero_do_dado
+                                if (jogadoress.posicao_percurso_colorido == infos_do_jogo.percurso_colorido):
+                                    # vencedor = [True,jogadoress.nome,jogadoress.cor]
+                                    jogadoress.peoes_que_terminaram_o_trageto = jogadoress.peoes_que_terminaram_o_trageto + 1
+                                    jogadoress.percurso_colorico = False
+                                    jogadoress.peoes_na_zona_neutra = True
+                                    jogadoress.posicao_no_percurso_normal = 0
+                                    jogadoress.posicao_percurso_colorido = 0
+                                else:
+                                    if (jogadoress.posicao_percurso_colorido < infos_do_jogo.percurso_colorido):
+                                        pass
+                                    elif (jogadoress.posicao_percurso_colorido > infos_do_jogo.percurso_colorido):
+                                        diferenca = jogadoress.posicao_percurso_colorido - infos_do_jogo.percurso_colorido
+                                        jogadoress.posicao_percurso_colorido = infos_do_jogo.percurso_colorido - diferenca
 
-                    if (jogadoress.posicao_no_percurso_normal >= 1):
-                        # o jogador so passa dessa parte se ele conseguir tirar ou 1 ou 6, e tirar o peao da ona neutra
-                        if (jogadoress.percurso_colorico == False):
-                            jogadoress.posicao_no_percurso_normal = jogadoress.posicao_no_percurso_normal + numero_do_dado
-                            if (jogadoress.posicao_no_percurso_normal >= infos_do_jogo.percurso_normal):
-                                jogadoress.posicao_no_percurso_normal = infos_do_jogo.percurso_normal
-                                jogadoress.percurso_colorico = True
-                        elif (jogadoress.percurso_colorico == True):  # redundante mas bom de ler heuheu
-                            jogadoress.posicao_percurso_colorido = jogadoress.posicao_percurso_colorido + numero_do_dado
-                            if (jogadoress.posicao_percurso_colorido == infos_do_jogo.percurso_colorido):
-                                # vencedor = [True,jogadoress.nome,jogadoress.cor]
-                                jogadoress.peoes_que_terminaram_o_trageto = jogadoress.peoes_que_terminaram_o_trageto + 1
-                                jogadoress.percurso_colorico = False
-                                jogadoress.peoes_na_zona_neutra = True
-                                jogadoress.posicao_no_percurso_normal = 0
-                                jogadoress.posicao_percurso_colorido = 0
-                            else:
-                                if (jogadoress.posicao_percurso_colorido < infos_do_jogo.percurso_colorido):
-                                    pass
-                                elif (jogadoress.posicao_percurso_colorido > infos_do_jogo.percurso_colorido):
-                                    diferenca = jogadoress.posicao_percurso_colorido - infos_do_jogo.percurso_colorido
-                                    jogadoress.posicao_percurso_colorido = infos_do_jogo.percurso_colorido - diferenca
-
-        numero_de_rounds = numero_de_rounds + 1
+        numero_do_rounds = numero_do_rounds + 1
         debug = debug + 1
 
 
 def DADO():
-    numero_aleatorio = random.randint(1, 6)
+    if(infos_do_jogo.hardocore):
+        numero_aleatorio = random.randint(1, 5)
+    else:
+        numero_aleatorio = random.randint(1, 6)
+
     return numero_aleatorio
 
 
 def DADO_dos_BOTS():
     # os bots estavam ganhando muitas partidas, entao pra facilitar eu vou dar uma nerfada nos bots
-    numero_aleatorio = random.randint(1, 5)
-    return numero_aleatorio
+    numero_aleatorio = 99
+    if(int(infos_do_jogo.dificuldade_bots) == 1):
+        numero_aleatorio = random.randint(1, 4)
+    elif (int(infos_do_jogo.dificuldade_bots) == 2):
+        numero_aleatorio = random.randint(1, 5)
+    elif (int(infos_do_jogo.dificuldade_bots) == 3):
+        numero_aleatorio = random.randint(1, 6)
+
+    if(numero_aleatorio == 99):
+        print("Debug no dado dos bots")
+        return 999
+    else:
+        return numero_aleatorio
 
 
 ################ Main ####################
@@ -412,6 +456,17 @@ if (__name__ == "__main__"):
             numero_de_jogadores = input("Quantos players humanos iram jogar?")  # melhorar essa pergunta ai que ta feio
             while (numero_de_jogadores not in "1234"):
                 numero_de_jogadores = input("Porfavor digite um numero inteiro de 1 a 4:")
+            if(int(numero_de_jogadores) < 4):
+                Menu_dificildade_dos_bots()
+                resposta_menu_dificuldade_bots = input("Digite a opcao escolhida: ")
+                while resposta_menu_dificuldade_bots not in "1234":
+                    resposta_menu_dificuldade_bots = input("Digite uma opcao valida(1 a 4): ")
+                if(resposta_menu_dificuldade_bots == 4):
+                    infos_do_jogo.hardocore = True
+                    infos_do_jogo.dificuldade_bots = 3
+                else:
+                    infos_do_jogo.dificuldade_bots = resposta_menu_dificuldade_bots
+            print("\n")
 
             # crio os objetos necessarios para a partida
             lista_de_jogadores = Cria_Objeto_Jogador(numero_de_jogadores)
