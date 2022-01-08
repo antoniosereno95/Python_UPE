@@ -319,6 +319,23 @@ def Partida_do_jogo(lista_de_jogadores):
                     resp_campeao = input("resposta invalida, tente novamente(S/N): ")
                 if (resp_campeao.upper() == "S"):
                     # Reorganiza_quadro_de_campeoes(vencedor)
+                    change_name = input(f"Voce deseja mudar seu nome atual '{vencedor[1]}' antes de colocar-lo no quadro de campeoes?(S/N): ")
+                    while change_name.upper() not in "SN":
+                        change_name = input("entreda invalida, tente novamente(S/N): ")
+                    if(change_name.upper() == 'S'):
+                        print("Ok, vamos trocar o seu nome de player...")
+                        resp_novo_nome = ""
+                        while (resp_novo_nome.upper() != "S"):
+                            novo_nome = input("Por favor digite o novo nome de player: ")
+                            print("...")
+                            resp_novo_nome = input(f"Este [e o nome que voce deseja utilizar: '{novo_nome}'?(S/N)")
+                            while resp_novo_nome.upper() not in "SN":
+                                resp_novo_nome = input("entreda invalida, tente novamente(S/N): ")
+                            if(resp_novo_nome.upper() == "S"):
+                                vencedor[1] = novo_nome
+                                print("Nome de player trocado com sucesso.")
+
+
                     try:
                         Reorganiza_quadro_de_campeoes(vencedor)
                     except:
